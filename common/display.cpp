@@ -29,6 +29,8 @@ Display::Display(unsigned int width, unsigned int height, const std::string& tit
 		_width, _height,
 		SDL_WINDOW_OPENGL);
 
+	SDL_SetWindowPosition(_window, 100, 100);
+
 	_glContext = SDL_GL_CreateContext(_window);
 
 	GLenum res = glewInit();

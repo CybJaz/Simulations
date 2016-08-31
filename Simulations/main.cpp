@@ -6,7 +6,8 @@ TODO:
 	* MAX and MIN value from iteration.
 	* reset/stop simulation
 	* A and B variable modifiable
-	* description
+	* description - diplay text
+	* RK4
 */
 
 #include <iostream>
@@ -45,7 +46,7 @@ int main(int argc, char **argv)
 		display.clear();
 
 		simulation.update_grid(0.01f);
-		simulation.draw_grid(V);
+		simulation.draw_grid(U);
 
 		display.swapBuffers();
 

@@ -1,0 +1,2 @@
+A=0.5f, B=12.0f;
+random base = 5.0f;

@@ -199,6 +199,10 @@ void SimulationGrid::update_grid(float time_step)
 	for (unsigned int i = 0; i < EQUATIONS_NUM; i++)
 	{
 		std::swap(_limits[2 * i], _limits[2 * i + 1]);
+
+		//glActiveTexture(GL_TEXTURE0 + i);
+		//glBindTexture(GL_TEXTURE_2D, _texture_handle[i]);
+		//glBindImageTexture(i, _texture_handle[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG32F);
 	}
 
 	GLuint local_groups = 1;
@@ -216,13 +220,26 @@ void SimulationGrid::update_grid(float time_step)
 void SimulationGrid::draw_grid(Equation eq)
 {
 	glUseProgram(_render_program);
-	glUniform1i(glGetUniformLocation(_render_program, "srcTex"), eq);
+	//glUniform1i(glGetUniformLocation(_render_program, "srcTex"), eq);
 	glUniform1i(glGetUniformLocation(_render_program, "state"), _updated_buffer);
-	std::cout << _limits[0] << " : " << _limits[1] << " " << _limits[2] << " " << _limits[3] << std::endl;
+	//std::cout << _limits[0] << " : " << _limits[1] << " " << _limits[2] << " " << _limits[3] << std::endl;
 	glUniform2f(glGetUniformLocation(_render_program, "limits"), _limits[2 * eq], _limits[2 * eq + 1]);
 
+	glActiveTexture(GL_TEXTURE0 + eq);
+	glBindTexture(GL_TEXTURE_2D, _texture_handle[eq]);
+	glUniform1i(glGetUniformLocation(_render_program, "srcTex"), eq);
+
+	glEnableVertexAttribArray(0);
 	glBindVertexArray(_vao_handle);
+	//glBindBuffer(GL_ARRAY_BUFFER, _vao_handle);
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glBindVertexArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDisableVertexAttribArray(0);
 }
 
 const GLvoid * SimulationGrid::gen_red_texture()

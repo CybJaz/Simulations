@@ -15,6 +15,8 @@ void main()
 	float sth = texture(srcTex, vec2(0.2,0.4)).x;
 	float col;
 	
+	float range = limits[1] - limits[0];
+
 	if (state == 0)
 		col = texture(srcTex, texCoord).x;
 	else
@@ -23,6 +25,7 @@ void main()
 	if(col < 0.0f)
 		gl_FragColor = vec4(0.0f, .6f, 0.4f, 1.0f);
 	else 
-		gl_FragColor = vec4(abs(3*col/(limits[1]*2)), abs(col/limits[1]) / 2.f, 0.0f, 1.0f);
+		gl_FragColor = vec4(abs(3*(col-limits[0])/(range*2)), abs((col-limits[0])/range) / 2.f, 0.0f, 1.0f);
+		// gl_FragColor = vec4(abs(3*col/(limits[1]*2)), abs(col/limits[1]) / 2.f, 0.0f, 1.0f);
 }
 	

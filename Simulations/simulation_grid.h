@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include <string>
 
 #include <GL\glew.h>
@@ -16,7 +18,7 @@ enum Equation
 
 class SimulationGrid
 {
-	const GLsizei GRID_SIZE = 512;
+	const GLsizei GRID_SIZE = 128;
 	const GLuint EQUATIONS_NUM = 2;
 
 	float _random_base;
@@ -41,6 +43,9 @@ public:
 	void draw_both();
 
 	void reset();
+
+	//template <Equation EQ>
+	float get_limit(unsigned int min, Equation eq) { return _limits[min + 2 * eq]; }
 
 	~SimulationGrid();
 

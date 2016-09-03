@@ -72,6 +72,8 @@
   <ItemGroup>
     <ClCompile Include="..\common\camera_2d.cpp" />
     <ClCompile Include="..\common\display.cpp" />
+    <ClCompile Include="..\common\files_utils.cpp" />
+    <ClCompile Include="..\common\text_2d.cpp" />
     <ClCompile Include="..\common\transform_2d.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="simulation_grid.cpp" />
@@ -82,8 +84,19 @@
     <ClInclude Include="..\common\files_utils.h" />
     <ClInclude Include="..\common\glm_printer.h" />
     <ClInclude Include="..\common\opengl_utils.h" />
+    <ClInclude Include="..\common\text_2d.h" />
     <ClInclude Include="..\common\transform_2d.h" />
     <ClInclude Include="simulation_grid.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\common\fonts\consolas.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\gof_shader.csh" />
+    <None Include="shaders\loc_shader.csh" />
+    <None Include="shaders\turing_shader.csh" />
+    <None Include="shaders\turing_shader.fsh" />
+    <None Include="shaders\turing_shader.vsh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

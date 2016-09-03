@@ -15,14 +15,19 @@ layout (std430, binding = 2) buffer limits
 {
 	float minmax[];
 };
+// layout (std430, binding = 2) buffer coefficiets
+// {
+// 	float coefs[];
+// };
 
 layout (local_size_x = 1, local_size_y = 1) in;
 
 uint modui(int x, int n) { if(x < 0) return n+x; else if(x>=n) return x-n; else return x;}
 
 void main() {
-	// float A = 0.5f, B = 12.0f;
-	float A = 1, B = 11;
+	float A = 1.5f, B = 16.0f;
+	// float A = 1, B = 11;
+	// float A = 3.5, B = 16;
 	// int n = 16;
 	int n = int(gl_NumWorkGroups.x);
 	float time_step = 0.01f;

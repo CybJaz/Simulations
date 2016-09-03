@@ -5,7 +5,7 @@
 
 #include <GL\glew.h>
 
-void checkErrors(std::string desc) {
+inline void checkErrors(std::string desc) {
 	GLenum e = glGetError();
 	if (e != GL_NO_ERROR) {
 		fprintf(stderr, "OpenGL error in \"%s\": %s (%d)\n", desc.c_str(), gluErrorString(e), e);
@@ -13,7 +13,7 @@ void checkErrors(std::string desc) {
 	}
 }
 
-void checkShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage)
+inline void checkShaderError(GLuint shader, GLuint flag, bool isProgram, const std::string& errorMessage)
 {
 	GLint success = 0;
 	GLchar error[1024] = { 0 };

@@ -16,6 +16,9 @@
     <Filter Include="common">
       <UniqueIdentifier>{159ee3e0-d48f-440d-aa3f-666eee1e76d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{f9c351eb-a409-4c6a-b97a-41f7185309b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\camera_2d.cpp">
@@ -32,6 +35,12 @@
     </ClCompile>
     <ClCompile Include="simulation_grid.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\text_2d.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\files_utils.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,5 +65,30 @@
     <ClInclude Include="..\common\files_utils.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\text_2d.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\common\fonts\consolas.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\gof_shader.csh">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\loc_shader.csh">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\turing_shader.csh">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\turing_shader.fsh">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\turing_shader.vsh">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

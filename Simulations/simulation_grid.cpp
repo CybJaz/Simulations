@@ -15,6 +15,10 @@ SimulationGrid::SimulationGrid()
 
 	_texture_handle = new GLuint[EQUATIONS_NUM];
 
+	_coeffs = new GLfloat[COEFFICIENTS_NUM];
+	_coeffs[0] = 3.5f;
+	_coeffs[1] = 16.f;
+
 	_limits = new GLfloat[2 * EQUATIONS_NUM];
 	_limits[0] = _random_base / 2.0f;
 	_limits[1] = _random_base / 4.0f;
@@ -27,6 +31,11 @@ SimulationGrid::SimulationGrid()
 	//GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 	//memcpy(p, &_limits, sizeof(_limits));
 	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	glGenBuffers(1, &_coeffs_values_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _coeffs_values_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLfloat) * COEFFICIENTS_NUM, _coeffs, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	init_textures();
@@ -44,6 +53,11 @@ SimulationGrid::~SimulationGrid()
 	//glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	//delete[] _limits;
 	//delete[] _texture_handle;
+
+	for (unsigned int idx = 0; idx < EQUATIONS_NUM; idx++)
+	{
+		glDeleteTextures(EQUATIONS_NUM, &_texture_handle[0]);
+	}
 }
 
 void SimulationGrid::init_textures()
@@ -130,6 +144,9 @@ void SimulationGrid::init_render_program()
 	glEnableVertexAttribArray(position_loc);
 
 	checkErrors("Square mesh");
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void SimulationGrid::init_compute_program()
@@ -163,28 +180,41 @@ void SimulationGrid::init_compute_program()
 	glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &x);
 
 	glUseProgram(_compute_program);
+	{
+		GLuint ssbo_binding_point_index = 2;
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo_binding_point_index, _limit_values_ssbo);
+		checkErrors("SSBO1");
 
-	GLuint ssbo_binding_point_index = 2;
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo_binding_point_index, _limit_values_ssbo);
-	checkErrors("SSBO1");
+		GLuint block_index = 0;
+		std::cout << "max gl uint: " << block_index - 1 << " block index: " << block_index << std::endl;
+		block_index = glGetProgramResourceIndex(_compute_program, GL_SHADER_STORAGE_BLOCK, "limits");
+		checkErrors("SSBO");
 
-	GLuint block_index = 0;
-	std::cout << "max gl uint: " << block_index - 1 << " block index: " << block_index << std::endl;
-	block_index = glGetProgramResourceIndex(_compute_program, GL_SHADER_STORAGE_BLOCK, "limits");
-	checkErrors("SSBO");
+		std::cout << "block index: " << block_index << " GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS: " << x << std::endl;
 
-	std::cout << "block index: " << block_index << " GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS: " << x << std::endl;
-
-	glShaderStorageBlockBinding(_compute_program, block_index, ssbo_binding_point_index);
-	checkErrors("SSBO1.1");
+		glShaderStorageBlockBinding(_compute_program, block_index, ssbo_binding_point_index);
+		checkErrors("SSBO1.1");
+	}
 	
+	///
+	{
+		GLuint ssbo_binding_point_index = 3;
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo_binding_point_index, _coeffs_values_ssbo);
+		checkErrors("SSBO2");
+
+		GLuint block_index = 0;
+		std::cout << "max gl uint: " << block_index - 1 << " block index: " << block_index << std::endl;
+		block_index = glGetProgramResourceIndex(_compute_program, GL_SHADER_STORAGE_BLOCK, "coeffs");
+		checkErrors("SSBO2.1");
+
+		std::cout << "block index: " << block_index << " GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS: " << x << std::endl;
+
+		glShaderStorageBlockBinding(_compute_program, block_index, ssbo_binding_point_index);
+		checkErrors("SSBO2.2");
+	}
+
 	//glBindBufferRange(GL_SHADER_STORAGE_BUFFER, ssbo_binding_point_index, _limit_values_ssbo, 0, sizeof(GLfloat) * 2);
 	glUseProgram(0);
-
-}
-
-void SimulationGrid::reset()
-{
 
 }
 
@@ -195,6 +225,10 @@ void SimulationGrid::update_grid(float time_step)
 	glUniform1i(glGetUniformLocation(_compute_program, "u_vals"), 0);
 	glUniform1i(glGetUniformLocation(_compute_program, "v_vals"), 1);
 	glUniform1i(glGetUniformLocation(_compute_program, "upd_buf"), _updated_buffer);
+
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _limit_values_ssbo);
+	//glShaderStorageBlockBinding(_compute_program, glGetProgramResourceIndex(_compute_program, GL_SHADER_STORAGE_BLOCK, "limits"), 2);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _coeffs_values_ssbo);
 
 	for (unsigned int i = 0; i < EQUATIONS_NUM; i++)
 	{
@@ -207,9 +241,10 @@ void SimulationGrid::update_grid(float time_step)
 
 	GLuint local_groups = 1;
 	glDispatchCompute(GRID_SIZE / local_groups, GRID_SIZE / local_groups, 1);
-
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _limit_values_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _limit_values_ssbo);
 	_limits = (GLfloat *) glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 	//lim = (GLfloat *) glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, sizeof(GLfloat) * 2, GL_MAP_READ_BIT);
 
@@ -240,6 +275,27 @@ void SimulationGrid::draw_grid(Equation eq)
 	glBindVertexArray(0);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDisableVertexAttribArray(0);
+}
+
+void SimulationGrid::set_coeff(unsigned int coeff, float value)
+{
+	_coeffs[coeff] = value;
+
+	//glGenBuffers(1, &_coeffs_values_ssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _coeffs_values_ssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLfloat) * COEFFICIENTS_NUM, _coeffs, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+}
+
+void SimulationGrid::reset()
+{
+	for (unsigned int idx = 0; idx < EQUATIONS_NUM; idx++)
+	{
+		glBindTexture(GL_TEXTURE_2D, _texture_handle[idx]);
+		const GLvoid* data = gen_random_texture(_random_base);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GRID_SIZE, GRID_SIZE, GL_RG, GL_FLOAT, data);
+	}
 }
 
 const GLvoid * SimulationGrid::gen_red_texture()

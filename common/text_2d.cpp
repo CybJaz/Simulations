@@ -13,6 +13,32 @@ Text2D::Text2D(GLuint vertex_buffer_id, GLuint uv_buffer_id, GLuint num_of_verti
 	_num_of_vertices(num_of_vertices)
 {}
 
+Text2D::Text2D(const Text2D& text2d)
+{
+	glDeleteBuffers(1, &_vertex_buffer_id);
+	glDeleteBuffers(1, &_uv_buffer_id);
+
+	_vertex_buffer_id = text2d._vertex_buffer_id;
+	_uv_buffer_id = text2d._uv_buffer_id;
+	_num_of_vertices = text2d._num_of_vertices;
+}
+
+void Text2D::operator=(const Text2D& text2d)
+{
+	glDeleteBuffers(1, &_vertex_buffer_id);
+	glDeleteBuffers(1, &_uv_buffer_id);
+
+	_vertex_buffer_id = text2d._vertex_buffer_id;
+	_uv_buffer_id = text2d._uv_buffer_id;
+	_num_of_vertices = text2d._num_of_vertices;
+}
+
+Text2D::~Text2D()
+{
+	//glDeleteBuffers(1, &_vertex_buffer_id);
+	//glDeleteBuffers(1, &_uv_buffer_id);
+}
+
 void Text2D::print()
 {
 	glEnableVertexAttribArray(0);
@@ -34,11 +60,11 @@ void Text2D::print()
 Text2DShader::Text2DShader(const char * namebase, GLuint texture_buffer_id)
 	:_font_texture_buffer_id(texture_buffer_id)
 {
-	std::string vertex_shader_content = load_txt_file(std::string(namebase) + std::string(".vsh"));
+	std::string vertex_shader_content = load_txt_file(std::string(namebase) + std::string(".vertsh"));
 	GLint vlengths[1] = { vertex_shader_content.length() };
 	const char *vertex_shader_source[] = { vertex_shader_content.c_str() };
 
-	std::string fragment_shader_content = load_txt_file(std::string(namebase) + std::string(".fsh"));
+	std::string fragment_shader_content = load_txt_file(std::string(namebase) + std::string(".fragsh"));
 	GLint flengths[1] = { fragment_shader_content.length() };
 	const char *fragment_shader_source[] = { fragment_shader_content.c_str() };
 
@@ -138,6 +164,11 @@ Text2DGenerator::~Text2DGenerator()
 {
 }
 
+Text2D Text2DGenerator::generate_text_2d(std::string text, float size, glm::vec2 position)
+{
+	return generate_text_2d(text.c_str(), size, position);
+}
+
 Text2D Text2DGenerator::generate_text_2d(const char * text, float size, glm::vec2 position)
 {
 	unsigned int length = strlen(text);
@@ -210,6 +241,8 @@ Text2D Text2DGenerator::generate_text_2d(const char * text, float size, glm::vec
 	glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec2), &UVs[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	return Text2D(text2d_vertex_buffer_id, text2d_uv_buffer_id, vertices.size());
 

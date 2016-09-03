@@ -17,8 +17,10 @@ class Text2D
 public:
 	void print();
 
-	Transform2D transform;
-
+	//Transform2D transform;
+	void operator=(const Text2D& text2d);
+	Text2D(const Text2D& text2d);
+	~Text2D();
 private:
 	Text2D();
 	Text2D(GLuint vertex_buffer_id, GLuint uv_buffer_id, GLuint num_of_vertices);
@@ -60,6 +62,7 @@ public:
 	\param size relative to screensize
 	*/
 	Text2D generate_text_2d(const char * text, float size, glm::vec2 position);
+	Text2D generate_text_2d(std::string text, float size, glm::vec2 position);
 
 	Text2DShader generate_shader(const char * shader_namebase);
 

@@ -6,9 +6,9 @@
 
 #include <GL\glew.h>
 
-static const std::string COMPUTATION_SH_EXT(".csh");
-static const std::string VERTEX_SH_EXT(".vsh");
-static const std::string FRAGMENT_SH_EXT(".fsh");
+static const std::string COMPUTATION_SH_EXT(".compsh");
+static const std::string VERTEX_SH_EXT(".vertsh");
+static const std::string FRAGMENT_SH_EXT(".fragsh");
 
 enum Equation
 {
@@ -18,21 +18,23 @@ enum Equation
 
 class SimulationGrid
 {
-	const GLsizei GRID_SIZE = 128;
+	const GLsizei GRID_SIZE = 640;
 	const GLuint EQUATIONS_NUM = 2;
+	const GLuint COEFFICIENTS_NUM = 2;
 
 	float _random_base;
-	GLfloat * _limits;
+	GLfloat *_limits, *_coeffs;
 
 	unsigned int _updated_buffer;
-
-	// Equations of dynamic of U and V, that will be copied to GLSL compute shader.
-	//std::string _dynamic[EQUATIONS_NUM];
 
 	GLuint *_texture_handle;
 	GLuint _vao_handle;
 
 	GLuint _compute_program, _render_program;
+
+	const std::string _shader_namebase;
+
+	GLuint _limit_values_ssbo, _coeffs_values_ssbo;
 
 public:
 	SimulationGrid();
@@ -45,7 +47,13 @@ public:
 	void reset();
 
 	//template <Equation EQ>
-	float get_limit(unsigned int min, Equation eq) { return _limits[min + 2 * eq]; }
+	inline float get_limit(unsigned int min, Equation eq) const { return _limits[min + 2 * eq]; }
+
+	inline float get_coeff(unsigned int coeff) const { return _coeffs[coeff]; }
+	void set_coeff(unsigned int coeff, float value);
+
+	inline float get_random_base() const { return _random_base; }
+	inline void set_random_base(float value) { _random_base = value; }
 
 	~SimulationGrid();
 
@@ -56,8 +64,4 @@ private:
 
 	const GLvoid * gen_red_texture();
 	const GLvoid * gen_random_texture(float base);
-
-	const std::string _shader_namebase;
-
-	GLuint _limit_values_ssbo;
 };
